@@ -69,6 +69,13 @@
       #print-container * {
         visibility: visible !important;
       }
+      
+      /* บังคับให้บราวเซอร์พิมพ์สีพื้นหลัง (เช่น สีหัวตาราง) */
+      table, tr, th, td {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
       @page {
         size: A4;
         margin: 15mm;
@@ -332,6 +339,7 @@
                     <option value="2024">2024</option>
                     <option value="2025">2025</option>
                     <option value="2026" selected>2026</option>
+                    <option value="2027">2027</option>
                   </select>
                 </div>
                 <div>
@@ -1138,7 +1146,7 @@
       const radius = document.getElementById('m-loc-radius').value.trim();
 
       if (!locName || !lat || !lng) { showToast("กรุณากรอกข้อมูลพิกัดให้ครบ", "error"); return; }
-      showToast("กำลังบันทึกพิกัด...", "info");
+      showToast("กำลังบันทึก...", "info");
       
       try {
         let response = await fetch(API_URL, {
@@ -1194,20 +1202,20 @@
       
       // สร้าง HTML เฉพาะสำหรับพิมพ์ป้าย QR Code
       const printHtml = `
-        <div class="flex flex-col items-center justify-center min-h-screen pt-12 pb-12 font-['Chakra_Petch']">
-          <div class="border-4 border-slate-800 rounded-3xl p-10 text-center shadow-lg w-full max-w-lg">
-            <h1 class="text-4xl font-extrabold text-blue-700 tracking-wide mb-2 uppercase">TimeGPS Pro</h1>
-            <p class="text-lg font-bold text-slate-500 mb-8 tracking-widest border-b-2 border-slate-200 pb-4">จุดลงเวลาทำการ</p>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-h-screen: 100vh; padding: 40px 20px; font-family: 'Chakra Petch', sans-serif;">
+          <div style="border: 4px solid #1e293b; border-radius: 24px; padding: 40px; text-align: center; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); width: 100%; max-width: 450px; background-color: #ffffff;">
+            <h1 style="font-size: 32px; font-weight: 800; color: #2563eb; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px;">TimeGPS Pro</h1>
+            <p style="font-size: 16px; font-weight: 700; color: #64748b; margin: 0 0 24px 0; letter-spacing: 2px; border-bottom: 2px solid #e2e8f0; padding-bottom: 16px;">จุดลงเวลาทำการ</p>
             
-            <h2 class="text-3xl font-bold text-slate-800 mb-6 bg-slate-100 py-3 rounded-xl px-4">${loc.locName}</h2>
+            <h2 style="font-size: 24px; font-weight: 700; color: #0f172a; margin: 0 0 24px 0; background-color: #f1f5f9; padding: 12px 16px; border-radius: 12px;">${loc.locName}</h2>
             
-            <div class="bg-white p-4 inline-block border-2 border-slate-300 rounded-2xl mb-6 shadow-sm">
-              <img src="${qrImgUrl}" alt="QR Code" class="w-64 h-64 mx-auto block">
+            <div style="background-color: #ffffff; padding: 16px; display: inline-block; border: 2px solid #cbd5e1; border-radius: 16px; margin-bottom: 24px;">
+              <img src="${qrImgUrl}" alt="QR Code" style="width: 220px; height: 220px; display: block;">
             </div>
             
-            <p class="text-xl font-bold text-red-600 mb-2">📍 รัศมีอนุญาต: ${loc.radius} เมตร</p>
-            <p class="text-sm text-slate-600">กรุณาสแกนเพื่อเช็คอิน/เช็คเอาท์</p>
-            <p class="text-[10px] text-slate-400 mt-6 mt-4 opacity-50 break-all">${targetUrl}</p>
+            <p style="font-size: 18px; font-weight: 700; color: #dc2626; margin: 0 0 8px 0;">📍 รัศมีอนุญาต: ${loc.radius} เมตร</p>
+            <p style="font-size: 14px; color: #475569; margin: 0 0 16px 0;">กรุณาสแกนเพื่อเช็คอิน/เช็คเอาท์</p>
+            <p style="font-size: 9px; color: #94a3b8; word-break: break-all; margin: 0; background-color: #f8fafc; padding: 8px; border-radius: 6px; border: 1px solid #f1f5f9;">${targetUrl}</p>
           </div>
         </div>
       `;
@@ -1244,41 +1252,41 @@
         if (result.status === 'success') {
           let rowsHtml = '';
           if (result.rows.length === 0) {
-            rowsHtml = `<tr><td colspan="6" class="text-center py-6 text-slate-500 font-bold border border-slate-300">ไม่พบประวัติการลงเวลาในเดือน/สาขา ที่เลือก</td></tr>`;
+            rowsHtml = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: #64748b; font-weight: bold; border: 1px solid #94a3b8;">ไม่พบประวัติการลงเวลาในเดือน/สาขา ที่เลือก</td></tr>`;
           } else {
             result.rows.forEach(row => {
               rowsHtml += `
-                <tr>
-                  <td class="py-2 px-3 border border-slate-300 text-center">${row.empId}</td>
-                  <td class="py-2 px-3 border border-slate-300 font-bold">${row.name}</td>
-                  <td class="py-2 px-3 border border-slate-300">${row.department}</td>
-                  <td class="py-2 px-3 border border-slate-300 text-center font-bold">${row.totalDays}</td>
-                  <td class="py-2 px-3 border border-slate-300 text-center font-bold text-blue-700">${row.totalHours}</td>
-                  <td class="py-2 px-3 border border-slate-300 text-center font-bold ${row.incompleteDays > 0 ? 'text-red-600' : 'text-slate-400'}">${row.incompleteDays}</td>
+                <tr style="page-break-inside: avoid;">
+                  <td style="padding: 10px 8px; border: 1px solid #94a3b8; text-align: center; font-family: monospace; font-size: 13px;">${row.empId}</td>
+                  <td style="padding: 10px 12px; border: 1px solid #94a3b8; font-weight: 700; color: #1e293b; text-align: left; font-size: 13px; white-space: nowrap;">${row.name}</td>
+                  <td style="padding: 10px 10px; border: 1px solid #94a3b8; text-align: left; color: #475569; font-size: 13px;">${row.department}</td>
+                  <td style="padding: 10px 8px; border: 1px solid #94a3b8; text-align: center; font-weight: 700; font-size: 13px;">${row.totalDays}</td>
+                  <td style="padding: 10px 8px; border: 1px solid #94a3b8; text-align: center; font-weight: bold; color: #1d4ed8; font-size: 13px;">${row.totalHours}</td>
+                  <td style="padding: 10px 8px; border: 1px solid #94a3b8; text-align: center; font-weight: bold; color: ${row.incompleteDays > 0 ? '#dc2626' : '#94a3b8'}; font-size: 13px;">${row.incompleteDays}</td>
                 </tr>
               `;
             });
           }
 
-          // สร้าง HTML เฉพาะสำหรับพิมพ์รายงานประจำเดือน A4
+          // สร้าง HTML เฉพาะสำหรับพิมพ์รายงานประจำเดือน A4 (ใช้ inline-style บังคับความกว้างให้คงที่ ป้องกัน print engine ของ บราวเซอร์ บิดเบือนคอลัมน์)
           const printHtml = `
-            <div class="p-8 font-['Chakra_Petch'] bg-white w-full max-w-5xl mx-auto">
-              <div class="text-center mb-6 border-b-2 border-slate-800 pb-4">
-                <h1 class="text-2xl font-bold uppercase tracking-wide">ใบสรุปเวลาปฏิบัติงานประจำเดือน</h1>
-                <p class="text-lg font-semibold mt-2">งวดเดือน: ${result.monthLabel}</p>
-                <p class="text-sm text-slate-600 mt-1">ส่วนงาน/สาขา: ${result.department}</p>
-                <p class="text-xs text-slate-400 mt-1">วันที่ออกรายงาน: ${result.generatedAt}</p>
+            <div style="padding: 20px; font-family: 'Chakra Petch', sans-serif; background-color: #ffffff; width: 100%; max-width: 1000px; margin: 0 auto; box-sizing: border-box;">
+              <div style="text-align: center; margin-bottom: 24px; border-bottom: 3px double #1e293b; padding-bottom: 16px;">
+                <h1 style="font-size: 24px; font-weight: bold; color: #0f172a; margin: 0 0 6px 0; letter-spacing: 0.5px;">ใบสรุปเวลาปฏิบัติงานประจำเดือน</h1>
+                <p style="font-size: 18px; font-weight: bold; color: #475569; margin: 0 0 6px 0;">งวดเดือน: ${result.monthLabel}</p>
+                <p style="font-size: 14px; color: #334155; margin: 0 0 4px 0; font-weight: 500;">ส่วนงาน/สาขา: <span style="font-weight: bold; text-decoration: underline;">${result.department}</span></p>
+                <p style="font-size: 11px; color: #64748b; margin: 0;">วันที่พิมพ์เอกสาร: ${result.generatedAt}</p>
               </div>
               
-              <table class="w-full text-left border-collapse border border-slate-800 text-sm">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #1e293b; font-size: 13px; table-layout: fixed;">
                 <thead>
-                  <tr class="bg-slate-100">
-                    <th class="py-2 px-3 border border-slate-800 text-center w-24">รหัส</th>
-                    <th class="py-2 px-3 border border-slate-800">ชื่อ-นามสกุล</th>
-                    <th class="py-2 px-3 border border-slate-800">สังกัดสาขา/แผนก</th>
-                    <th class="py-2 px-3 border border-slate-800 text-center w-28">มาทำงาน (วัน)</th>
-                    <th class="py-2 px-3 border border-slate-800 text-center w-28">ชม. ทำงานรวม</th>
-                    <th class="py-2 px-3 border border-slate-800 text-center w-32">ลงชื่อไม่ครบ (วัน)</th>
+                  <tr style="background-color: #f1f5f9; border-bottom: 2px solid #1e293b;">
+                    <th style="width: 12%; padding: 12px 6px; border: 1px solid #94a3b8; text-align: center; font-weight: bold; color: #0f172a;">รหัส</th>
+                    <th style="width: 28%; padding: 12px 10px; border: 1px solid #94a3b8; text-align: left; font-weight: bold; color: #0f172a;">ชื่อ-นามสกุล</th>
+                    <th style="width: 24%; padding: 12px 10px; border: 1px solid #94a3b8; text-align: left; font-weight: bold; color: #0f172a;">สังกัดสาขา/แผนก</th>
+                    <th style="width: 12%; padding: 12px 6px; border: 1px solid #94a3b8; text-align: center; font-weight: bold; color: #0f172a;">มาทำงาน (วัน)</th>
+                    <th style="width: 12%; padding: 12px 6px; border: 1px solid #94a3b8; text-align: center; font-weight: bold; color: #0f172a;">ชม. ทำงานรวม</th>
+                    <th style="width: 12%; padding: 12px 6px; border: 1px solid #94a3b8; text-align: center; font-weight: bold; color: #0f172a;">ลงชื่อไม่ครบ (วัน)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1286,16 +1294,16 @@
                 </tbody>
               </table>
 
-              <div class="mt-16 flex justify-around text-center text-sm font-bold">
-                <div class="flex flex-col items-center">
-                  <div class="w-48 border-b border-slate-800 border-dashed mb-2 h-10"></div>
-                  <p>( ฝ่ายบุคคล / ผู้สรุปรายงาน )</p>
-                  <p class="text-xs text-slate-500 font-normal mt-1">วันที่ ....... / ....... / .......</p>
+              <div style="margin-top: 60px; display: flex; justify-content: space-around; text-align: center; font-size: 13px; font-weight: bold;">
+                <div style="display: flex; flex-direction: column; align-items: center; width: 40%;">
+                  <div style="width: 200px; border-bottom: 1px dashed #1e293b; margin-bottom: 8px; height: 35px;"></div>
+                  <p style="margin: 0 0 4px 0;">( ฝ่ายบุคคล / ผู้สรุปรายงาน )</p>
+                  <p style="font-size: 11px; color: #64748b; font-weight: normal; margin: 0;">วันที่ ....... / ....... / .......</p>
                 </div>
-                <div class="flex flex-col items-center">
-                  <div class="w-48 border-b border-slate-800 border-dashed mb-2 h-10"></div>
-                  <p>( ผู้อนุมัติ / ผู้จัดการ )</p>
-                  <p class="text-xs text-slate-500 font-normal mt-1">วันที่ ....... / ....... / .......</p>
+                <div style="display: flex; flex-direction: column; align-items: center; width: 40%;">
+                  <div style="width: 200px; border-bottom: 1px dashed #1e293b; margin-bottom: 8px; height: 35px;"></div>
+                  <p style="margin: 0 0 4px 0;">( ผู้อนุมัติ / ผู้จัดการ )</p>
+                  <p style="font-size: 11px; color: #64748b; font-weight: normal; margin: 0;">วันที่ ....... / ....... / .......</p>
                 </div>
               </div>
             </div>
