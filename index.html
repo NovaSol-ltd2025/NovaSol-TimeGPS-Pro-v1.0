@@ -51,20 +51,23 @@
 
     /* 🖨️ สไตล์สำหรับการพิมพ์ (QR Code และ รายงาน PDF) */
     @media print {
-      body * {
-        visibility: hidden;
+      /* ซ่อนเนื้อหาอื่นทั้งหมด ยกเว้น print-container */
+      body > *:not(#print-container) {
+        display: none !important;
       }
-      #print-container, #print-container * {
-        visibility: visible;
-      }
+      /* บังคับให้แสดงผล print-container ในหน้ากระดาษพิมพ์ */
       #print-container {
+        display: block !important;
         position: absolute;
         left: 0;
         top: 0;
-        width: 100%;
-        background-color: white;
-        margin: 0;
-        padding: 0;
+        width: 100% !important;
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      #print-container * {
+        visibility: visible !important;
       }
       @page {
         size: A4;
@@ -75,7 +78,7 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex flex-col">
 
-  <!-- คอนเทนเนอร์ลับสำหรับสั่งพิมพ์เท่านั้น จะถูกแสดงเฉพาะตอนกด Print -->
+  <!-- คอนเทนเนอร์สำหรับสั่งพิมพ์เท่านั้น (จะถูกสลับคลาส 'hidden' ใน JS ไดนามิกตอนพิมพ์) -->
   <div id="print-container" class="hidden absolute w-full min-h-screen z-[100] bg-white"></div>
 
   <nav class="bg-blue-600 text-white shadow-md sticky top-0 z-40">
@@ -1212,9 +1215,13 @@
       const container = document.getElementById('print-container');
       container.innerHTML = printHtml;
       
-      // รอให้รูปโหลดก่อนเรียกหน้าต่างพิมพ์
+      // ปลดคลาส hidden ของ print-container ออกชั่วขณะก่อนสั่งพิมพ์
+      container.classList.remove('hidden');
+      
+      // รอให้ระบบแสดงผลเรียบร้อยแล้วเรียกหน้าต่างสั่งพิมพ์จริง
       setTimeout(() => {
         window.print();
+        container.classList.add('hidden'); // ดึงคลาส hidden กลับมาหลังปิดหน้าต่างพิมพ์
         container.innerHTML = ''; // เคลียร์ออกหลังพิมพ์เสร็จ
       }, 500);
     }
@@ -1297,8 +1304,12 @@
           const container = document.getElementById('print-container');
           container.innerHTML = printHtml;
           
+          // ปลดคลาส hidden เพื่อเตรียมการพรีวิว
+          container.classList.remove('hidden');
+          
           setTimeout(() => {
             window.print();
+            container.classList.add('hidden'); // ซ่อนกลับหลังจากพิมพ์
             container.innerHTML = '';
           }, 300);
 
